@@ -13,6 +13,7 @@ export const PokemonQuiz: React.FC = () => {
   const [options, setOptions] = useState<string[]>([]);
   const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [isShowJapaneseDisabled, setIsShowJapaneseDisabled] = useState(false);
   const [showJapanese, setShowJapanese] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [hintLevel, setHintLevel] = useState(0);
@@ -148,8 +149,10 @@ export const PokemonQuiz: React.FC = () => {
 
   const handleShowJapaneseClick = () => {
     setShowJapanese(true);
+    setIsShowJapaneseDisabled(true);
     setTimeout(() => {
       setShowJapanese(false);
+      setIsShowJapaneseDisabled(false);
     }, 3000);
   };
 
@@ -231,6 +234,7 @@ export const PokemonQuiz: React.FC = () => {
           variant="outline"
           onClick={handleShowJapaneseClick}
           className="flex-shrink-0"
+          disabled={isShowJapaneseDisabled}
         >
           <HelpCircle className="h-4 w-4 mr-2" />
           {showJapanese ? 'Hide Japanese' : 'Show Japanese'}
