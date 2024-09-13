@@ -146,6 +146,13 @@ export const PokemonQuiz: React.FC = () => {
 
   if (!currentPokemon || !currentCategory) return null;
 
+  const handleShowJapaneseClick = () => {
+    setShowJapanese(true);
+    setTimeout(() => {
+      setShowJapanese(false);
+    }, 3000);
+  };
+
   return (
     <div className="max-w-md mx-auto">
       <div className="mb-4 flex justify-between items-center">
@@ -197,9 +204,11 @@ export const PokemonQuiz: React.FC = () => {
               >
                 {option}
                 <small className="block">
-                  {showJapanese || showHint
-                    ? getProgressiveHint(japaneseTranslations[option as keyof typeof japaneseTranslations], hintLevel)
-                    : ''}
+                  {showJapanese
+                  ? japaneseTranslations[option as keyof typeof japaneseTranslations]
+                  : showHint
+                  ? getProgressiveHint(japaneseTranslations[option as keyof typeof japaneseTranslations], hintLevel)
+                  : ''}
                 </small>
               </Button>
             ))}
@@ -220,7 +229,7 @@ export const PokemonQuiz: React.FC = () => {
         </Button>
         <Button
           variant="outline"
-          onClick={() => setShowJapanese(!showJapanese)}
+          onClick={handleShowJapaneseClick}
           className="flex-shrink-0"
         >
           <HelpCircle className="h-4 w-4 mr-2" />
