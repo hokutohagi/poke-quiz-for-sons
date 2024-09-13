@@ -1,16 +1,30 @@
 import type { MetaFunction } from "@vercel/remix";
+// import { PokemonQuiz } from "~/components/pokemon-quiz";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Pokémon Quiz" },
+    { description: "My Page Description" },
+    { charset: "utf-8" },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
   ];
-};
+}
+
+// export default function Index() {
+//   return (
+    // <div className="container mx-auto p-4">
+    //   <h1 className="text-3xl font-bold mb-8 text-center">Pokémon Quiz</h1>
+    //   {/* <PokemonQuiz /> */}
+    // </div>
+//   );
+// }
+
+;
 
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-8 text-center">Pokémon Quiz</h1>
       <ul>
         <li>
           <a
