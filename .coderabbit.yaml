@@ -1,0 +1,83 @@
+# CodeRabbit 設定
+version: 1
+reviews:
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    ignore_title_keywords:
+      - WIP
+      - DO NOT MERGE
+      - マージ禁止
+    drafts: false
+    base_branches:
+      - main
+      - develop
+    labels:
+      - レビュー待ち
+  annotate_patches: true
+
+chat:
+  auto_reply: true
+
+# model:
+#   provider: openai
+#   name: gpt-4
+
+# 日本語でのレビューを指定
+language: 日本語
+
+rules:
+  - name: Remixのベストプラクティス
+    description: Remix特有のパターンとベストプラクティスが守られているか確認
+    glob: "app/**/*.{js,jsx,ts,tsx}"
+  
+  - name: Reactコンポーネント構造
+    description: 適切なReactコンポーネント構造とフックの使用をチェック
+    glob: "app/**/*.{jsx,tsx}"
+  
+  - name: Tailwind CSSクラス
+    description: Tailwind CSSクラスの正しい使用を検証
+    glob: "**/*.{jsx,tsx,css}"
+  
+  - name: shadcn/uiコンポーネント
+    description: shadcn/uiコンポーネントの適切な使用を確認
+    glob: "app/**/*.{jsx,tsx}"
+
+  - name: アクセシビリティ
+    description: コンポーネントとマークアップのアクセシビリティ問題をチェック
+    glob: "app/**/*.{jsx,tsx}"
+
+  - name: パフォーマンス
+    description: Reactコンポーネントの潜在的なパフォーマンス問題を特定
+    glob: "app/**/*.{jsx,tsx}"
+
+  - name: コードスタイル
+    description: 一貫したコードスタイルとフォーマットを強制
+    glob: "**/*.{js,jsx,ts,tsx,css}"
+
+ignore:
+  - "node_modules/"
+  - "build/"
+  - "public/"
+  - "**/*.test.{js,jsx,ts,tsx}"
+  - "**/*.spec.{js,jsx,ts,tsx}"
+
+# 日本語のコメントスタイルを指定
+comment_style:
+  語調: フォーマル
+  敬語: 使用する
+  技術用語: 英語のまま
+  説明: 詳細に
+  提案: 具体的な改善案を含める
+
+# レビューの焦点
+focus:
+  - コードの品質
+  - パフォーマンス
+  - セキュリティ
+  - ベストプラクティス
+  - 日本語のコメントとドキュメンテーション
