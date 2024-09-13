@@ -5,25 +5,15 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Pokémon Quiz" },
     { description: "My Page Description" },
-    { charset: "utf-8" },
-    { name: "viewport", content: "width=device-width, initial-scale=1" },
   ];
 }
-
-// export default function Index() {
-//   return (
-    // <div className="container mx-auto p-4">
-    //   <h1 className="text-3xl font-bold mb-8 text-center">Pokémon Quiz</h1>
-    //   {/* <PokemonQuiz /> */}
-    // </div>
-//   );
-// }
-
-;
 
 export default function Index() {
   return (
     <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold underline">
+        Hello world!
+      </h1>
       <h1 className="text-3xl font-bold mb-8 text-center">Pokémon Quiz</h1>
       <ul>
         <li>

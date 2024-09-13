@@ -1,3 +1,6 @@
+import type { LinksFunction } from "@remix-run/node";
+import tailwindStylesheetUrl from "./styles/globals.css?url";
+
 import {
   Links,
   Meta,
@@ -5,7 +8,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { Analytics } from "@vercel/analytics/react";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: tailwindStylesheetUrl }
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,7 +26,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Analytics />
       </body>
     </html>
   );
