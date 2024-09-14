@@ -1,5 +1,7 @@
 # CodeRabbit 設定
 # version: 1
+
+language: ja-JP
 reviews:
   request_changes_workflow: false
   high_level_summary: true
@@ -17,49 +19,29 @@ reviews:
     base_branches:
       - main
       - develop
-  annotate_patches: true
   path_filters: ["node_modules/", "build", "public/", "**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"]
-  path_instructions: {
-    [
-      path: "app/**/*.{js,jsx,ts,tsx}",
+  path_instructions:
+    - path: "app/**/*.{js,jsx,ts,tsx}"
       instructions: "Remix特有のパターンとベストプラクティスが守られているか確認"
-    ],
-    [
-      path: "app/**/*.{jsx,tsx}",
+    - path: "app/**/*.{jsx,tsx}"
       instructions: "適切なReactコンポーネント構造とフックの使用をチェック。コンポーネントとマークアップのアクセシビリティ問題をチェック。Reactコンポーネントの潜在的なパフォーマンス問題を特定"
-    ],
-    [
-      path: "app/**/*.{js,jsx,ts,tsx}",
+    - path: "app/**/*.{js,jsx,ts,tsx}"
       instructions: "Tailwind CSSクラスの正しい使用を検証"
-    ],
-    [
-      path: "app/**/*.{jsx,tsx}",
+    - path: "app/**/*.{jsx,tsx}"
       instructions: "shadcn/uiコンポーネントの適切な使用を確認"
-    ],
-    [
-      path: "app/**/*.{jsx,tsx}",
+    - path: "app/**/*.{jsx,tsx}"
       instructions: "shadcn/uiコンポーネントの適切な使用を確認"
-    ],
-    [
-      path: "**/*.{js,jsx,ts,tsx,css}",
+    - path: "**/*.{js,jsx,ts,tsx,css}"
       instructions: "一貫したコードスタイルとフォーマットを強制"
-    ]
-  }
 
 chat:
   auto_reply: true
 
-# model:
-#   provider: openai
-#   name: gpt-4
-
-# 日本語でのレビューを指定
-language: ja-JP
-
-tone_instructions:
-  - ベテランエンジニアのような厳しい視点で
-  - 丁寧な言葉遣いで
-  - ポジティブなフィードバックを含めて
-  - 技術用語は英語のままで
-  - 具体的な改善案を提案して
-  - 説明を詳細にして
+tone_instructions: |
+  "ベテランエンジニアのような厳しい視点で、
+  丁寧な言葉遣いで、
+  ポジティブなフィードバックを含めて、
+  技術用語は英語のままで、
+  具体的な改善案を提案して、
+  説明を詳細にして
+  "
