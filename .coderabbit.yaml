@@ -6,7 +6,7 @@ reviews:
   poem: false
   review_status: true
   collapse_walkthrough: true
-  auto_title_placeholder: @coderabbitai
+  auto_title_placeholder: "@coderabbitai"
   auto_review:
     enabled: true
     ignore_title_keywords:
@@ -17,8 +17,6 @@ reviews:
     base_branches:
       - main
       - develop
-    labels:
-      - レビュー待ち
   annotate_patches: true
   path_filters: ["node_modules/", "build", "public/", "**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"]
   path_instructions: {
