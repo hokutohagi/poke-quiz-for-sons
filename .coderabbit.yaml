@@ -25,7 +25,7 @@ reviews:
       instructions: "Remix特有のパターンとベストプラクティスが守られているか確認"
     ],
     [
-      path: "app/**/*.{jsx,tsx}",[
+      path: "app/**/*.{jsx,tsx}",
       instructions: "適切なReactコンポーネント構造とフックの使用をチェック。コンポーネントとマークアップのアクセシビリティ問題をチェック。Reactコンポーネントの潜在的なパフォーマンス問題を特定"
     ],
     [
