@@ -65,15 +65,3 @@ export const getRandomPokemonData = async () => {
     }
   };
   
-  // デバッグ用の関数
-  export const debugGetRandomPokemonData = async () => {
-    try {
-      console.log('Starting debugGetRandomPokemonData');
-      const result = await getRandomPokemonData();
-      console.log('Function completed successfully');
-      console.log('Result:', result);
-    } catch (error) {
-      console.error('Function threw an error:', error);
-    }
-    console.log('debugGetRandomPokemonData finished');
-  };
