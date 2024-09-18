@@ -19,7 +19,7 @@ reviews:
     base_branches:
       - main
       - develop
-  path_filters: ["node_modules/", "build", "public/", "**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}"]
+  path_filters: ["**/*.test.{js,jsx,ts,tsx}", "**/*.spec.{js,jsx,ts,tsx}", "app/**/*.{js,jsx,ts,tsx}"]
   path_instructions:
     - path: "app/**/*.{js,jsx,ts,tsx}"
       instructions: "Remix特有のパターンとベストプラクティスが守られているか確認"
