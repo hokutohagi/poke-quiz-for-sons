@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { PokemonData } from '../types/index';
 // import { get } from 'node_modules/axios/index.cjs';
 
 export const getRandomPokemonData = async () => {
@@ -16,25 +17,24 @@ export const getRandomPokemonData = async () => {
         randomId = Math.floor(Math.random() * 800) + 1;
 
           try {
-          let pokemonResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
-          let pokemonResponseData = pokemonResponse.data;
-          let speciesResponse = await axios.get(pokemonResponseData.species.url);
-          let speciesResponseData = speciesResponse.data;
+            let pokemonResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+            let pokemonResponseData = pokemonResponse.data;
+            let speciesResponse = await axios.get(pokemonResponseData.species.url);
+            let speciesResponseData = speciesResponse.data;
 
-          const pokeData = {
-            id: pokemonResponseData.id,
-            nameJp: pokemonResponseData.name,
-            nameEn: pokemonResponseData.name,
-            colorJp: speciesResponseData.color.name,
-            colorEn: speciesResponseData.color.name,
-            typeJp: pokemonResponseData.types[0].type.name,
-            typeEn: pokemonResponseData.types[0].type.name,
-            generaJp: speciesResponseData.genera[0].genus,
-            generaEn: speciesResponseData.genera[0].genus,
-            descritionJp: speciesResponseData.flavor_text_entries[0].flavor_text,
-            image: pokemonResponseData.sprites.front_default,
-            speciesData: speciesResponseData
-          };
+            const pokeData: PokemonData = {
+                id: pokemonResponseData.id,
+                nameJp: pokemonResponseData.name,
+                nameEn: pokemonResponseData.name,
+                colorJp: speciesResponseData.color.name,
+                colorEn: speciesResponseData.color.name,
+                typeJp: pokemonResponseData.types[0].type.name,
+                typeEn: pokemonResponseData.types[0].type.name,
+                generaJp: speciesResponseData.genera[0].genus,
+                generaEn: speciesResponseData.genera[0].genus,
+                descriptionJp: speciesResponseData.flavor_text_entries[0].flavor_text,
+                image: pokemonResponseData.sprites.front_default
+            };
             
           return pokeData
   
