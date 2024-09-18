@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Volume2, HelpCircle, Lightbulb, Award } from 'lucide-react';
-import { pokemonData, quizCategories, japaneseTranslations, achievements } from '~/data/pokemon-data';
+import { quizCategories, achievements } from '~/data/pokemon-data';
 import { PokemonData, QuizCategory, Achievement } from '~/types';
 import { getRandomPokemon, getRandomCategory, generateOptions, getProgressiveHint } from '~/utils/quiz-helpers';
+import { getRandomPokemonData } from '~/utils/pokemon-api'; // データ取得関数をインポート
+
 
 export const PokemonQuiz: React.FC = () => {
-  const [currentPokemon, setCurrentPokemon] = useState<PokemonData | null>(null);
+  const [currentPokemon, setCurrentPokemon] = useState<any | null>(null);
   const [currentCategory, setCurrentCategory] = useState<QuizCategory | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
@@ -25,17 +27,42 @@ export const PokemonQuiz: React.FC = () => {
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const [pokemonMasterLevel, setPokemonMasterLevel] = useState('Beginner');
 
-  const startNewQuiz = () => {
-    const pokemon = getRandomPokemon(pokemonData);
-    const category = getRandomCategory(quizCategories);
-    setCurrentPokemon(pokemon);
-    setCurrentCategory(category);
-    setOptions(generateOptions(pokemon[category.en as keyof PokemonData] as string, category, pokemonData));
-    setDisabledOptions([]);
-    setIsCorrect(null);
-    setShowJapanese(false);
-    setShowHint(false);
-    setHintLevel(0);
+  const startNewQuiz = useCallback(async () => {
+    try {
+      const pokemon = await getRandomPokemonData();
+      console.log('pokemon:', pokemon);
+      const category = getRandomCategory(quizCategories);
+      setCurrentPokemon(pokemon);
+      setCurrentCategory(category);
+      setDisabledOptions([]);
+      setIsCorrect(null);
+      setShowJapanese(false);
+      setShowHint(false);
+      setHintLevel(0);
+    } catch (error) {
+      console.error('Error starting new quiz:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    startNewQuiz();
+  }, [startNewQuiz]);
+
+
+  const handleShowJapaneseClick = () => {
+    setShowJapanese(true);
+    setIsShowJapaneseDisabled(true);
+    setTimeout(() => {
+      setShowJapanese(false);
+      setIsShowJapaneseDisabled(false);
+    }, 3000);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    if (isCorrect) {
+      startNewQuiz();
+    }
   };
 
   const getCorrectFeedback = () => {
@@ -114,13 +141,6 @@ export const PokemonQuiz: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleModalClose = () => {
-    setShowModal(false);
-    if (isCorrect) {
-      startNewQuiz();
-    }
-  };
-
   const handleAchievementClose = () => {
     setShowAchievement(false);
     startNewQuiz();
@@ -141,20 +161,7 @@ export const PokemonQuiz: React.FC = () => {
     window.speechSynthesis.speak(utteranceEn);
   };
 
-  useEffect(() => {
-    startNewQuiz();
-  }, []);
-
-  if (!currentPokemon || !currentCategory) return null;
-
-  const handleShowJapaneseClick = () => {
-    setShowJapanese(true);
-    setIsShowJapaneseDisabled(true);
-    setTimeout(() => {
-      setShowJapanese(false);
-      setIsShowJapaneseDisabled(false);
-    }, 3000);
-  };
+  if (!currentPokemon) return <div>Loading...</div>;
 
   return (
     <div className="max-w-md mx-auto">
