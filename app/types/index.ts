@@ -2,10 +2,13 @@ export interface PokemonData {
     id: number;
     nameJp: string;
     nameEn: string;
-    color: string;
-    type: string;
-    habitat: string;
-    shape: string;
+    colorJp: string;
+    colorEn: string;
+    typeJp: string;
+    typeEn: string;
+    generaJp: string;
+    generaEn: string;
+    descriptionJp: string;
     image: string;
 }
   
