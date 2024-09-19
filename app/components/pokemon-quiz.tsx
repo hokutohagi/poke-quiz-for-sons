@@ -124,8 +124,11 @@ export const PokemonQuiz: React.FC = () => {
 
   const handleAnswer = (answer: string) => {
     if (!currentPokemon || !currentCategory) return;
+
+    const currentProperty = currentPokemon[currentCategory.en as keyof PokemonData];
+    if (typeof currentProperty !== 'object' || currentProperty === null) return;
     
-    const correct = answer === currentPokemon[currentCategory.en as keyof PokemonData];
+    const correct = answer === currentProperty.en;
     if (correct) {
       const newStreak = correctStreak + 1;
       setCorrectStreak(newStreak);
