@@ -1,4 +1,5 @@
-import { PokemonData, QuizCategory } from '~/types';
+import { PokemonData, QuizCategory, Option } from '~/types';
+import { getColors, getTypes, getGenera } from '~/utils/pokemon-api';
 
 export const getRandomPokemon = (pokemonData: PokemonData[]): PokemonData => {
   const randomIndex = Math.floor(Math.random() * pokemonData.length);
@@ -10,12 +11,26 @@ export const getRandomCategory = (quizCategories: QuizCategory[]): QuizCategory 
   return quizCategories[randomIndex];
 };
 
-export const generateOptions = (correctAnswer: string, category: QuizCategory, pokemonData: PokemonData[]): string[] => {
-  const allOptions = pokemonData.map(pokemon => pokemon[category.en as keyof PokemonData] as string);
-  const uniqueOptions = [...new Set(allOptions)];
-  const filteredOptions = uniqueOptions.filter(option => option !== correctAnswer);
-  const randomOptions = filteredOptions.sort(() => 0.5 - Math.random()).slice(0, 3);
-  return [correctAnswer, ...randomOptions].sort(() => 0.5 - Math.random());
+// category と PokemonData を受け取り、category に応じた選択肢を生成する
+// PokemonData に存在する category の値を正解として、それ以外の選択肢をランダムに生成する
+export const generateOptions = async(category: QuizCategory, pokemonData: PokemonData): Promise<Option[]> => {
+  const correctAnswer = pokemonData[category.en as keyof PokemonData] as Option;
+  switch (category.en) {
+    case 'color':
+      return await generateColorOptions(correctAnswer, pokemonData);
+    // case 'type':
+    //   return generateTypeOptions(correctAnswer, pokemonData);
+    // case 'genera':
+    //   return generateGeneraOptions(correctAnswer, pokemonData);
+    default:
+      return [];
+  }
+};
+
+const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonData): Promise<Option[]> => {
+  const colors = await getColors();
+  const randomOptions = [correctAnswer, ...colors];
+  return randomOptions.sort(() => 0.5 - Math.random());
 };
 
 export const getProgressiveHint = (word: string, hintLevel: number): string => {
