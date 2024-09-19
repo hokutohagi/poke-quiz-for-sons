@@ -87,7 +87,7 @@ export const getRandomPokemonData = async () => {
       // response.data.results のからランダムに4つの色を選ぶ
       const totalPokemonColors = response.data.results.length;
       const randomColors: object[] = [];
-      while (randomColors.length < 3) {
+      while (randomColors.length < 4) {
         const randomColor = response.data.results[Math.floor(Math.random() * totalPokemonColors)];
         if (!randomColors.includes(randomColor)) {
           randomColors.push(randomColor);
@@ -98,8 +98,8 @@ export const getRandomPokemonData = async () => {
       const colorData = await Promise.all(randomColors.map(async (color: any) => {
         const colorResponse = await axios.get(color.url);
         return {
-          jp: colorResponse.data.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || colorResponse.data.names[0].name,
-          en: colorResponse.data.names.find((name: any) => name.language.name === 'en')?.name || colorResponse.data.names[0].name
+          jp: (colorResponse.data.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || colorResponse.data.names[0].name).toLowerCase(),
+          en: (colorResponse.data.names.find((name: any) => name.language.name === 'en')?.name || colorResponse.data.names[0].name).toLowerCase()
         };
       }));
       return colorData;

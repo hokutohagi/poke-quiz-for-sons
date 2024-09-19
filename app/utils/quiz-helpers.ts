@@ -29,8 +29,36 @@ export const generateOptions = async(category: QuizCategory, pokemonData: Pokemo
 
 const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonData): Promise<Option[]> => {
   const colors = await getColors();
-  const randomOptions = [correctAnswer, ...colors];
-  return randomOptions.sort(() => 0.5 - Math.random());
+  const randomColors = colors.map((color: { jp: string; en: string }) => ({ jp: color.jp, en: color.en }));
+
+  // ユニークな選択肢を生成
+  const uniqueOptionsSet = new Set<string>();
+  const uniqueOptions: Option[] = [];
+
+  // 正解を追加
+  uniqueOptionsSet.add(correctAnswer.en);
+  uniqueOptions.push(correctAnswer);
+
+  // ランダムな色を追加
+  for (const color of randomColors) {
+    if (uniqueOptionsSet.size >= 4) break;
+    if (!uniqueOptionsSet.has(color.en)) {
+      uniqueOptionsSet.add(color.en);
+      uniqueOptions.push(color);
+    }
+  }
+
+  // ユニークな選択肢が4つ未満の場合、再度ランダムな色を追加
+  while (uniqueOptionsSet.size < 4) {
+    const randomColor = randomColors[Math.floor(Math.random() * randomColors.length)];
+    if (!uniqueOptionsSet.has(randomColor.en)) {
+      uniqueOptionsSet.add(randomColor.en);
+      uniqueOptions.push(randomColor);
+    }
+  }
+
+  // シャッフルして返す
+  return uniqueOptions.sort(() => 0.5 - Math.random());
 };
 
 export const getProgressiveHint = (word: string, hintLevel: number): string => {
