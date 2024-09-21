@@ -28,7 +28,13 @@ export const generateOptions = async(category: QuizCategory, pokemonData: Pokemo
 };
 
 const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonData): Promise<Option[]> => {
-  const colors = await getColors();
+  let colors;
+  try {
+    colors = await getColors();
+  } catch (error) {
+    console.error('Error in generateColorOptions:', error);
+    throw error;
+  }
   const randomColors = colors.map((color: { jp: string; en: string }) => ({ jp: color.jp, en: color.en }));
 
   // ユニークな選択肢を生成
@@ -46,6 +52,12 @@ const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonD
       uniqueOptionsSet.add(color.en);
       uniqueOptions.push(color);
     }
+  }
+
+  // ユニークなカラーが4つ未満であればエラーとして処理
+  const uniqueColorCount = new Set(randomColors.map(color => color.en)).size;
+  if (uniqueColorCount < 4) {
+    throw new Error('Failed to generate unique color options.');
   }
 
   // ユニークな選択肢が4つ未満の場合、再度ランダムな色を追加

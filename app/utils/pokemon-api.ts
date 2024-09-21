@@ -85,14 +85,8 @@ export const getRandomPokemonData = async () => {
     try {
       const response = await axios.get('https://pokeapi.co/api/v2/pokemon-color');
       // response.data.results のからランダムに4つの色を選ぶ
-      const totalPokemonColors = response.data.results.length;
-      const randomColors: object[] = [];
-      while (randomColors.length < 4) {
-        const randomColor = response.data.results[Math.floor(Math.random() * totalPokemonColors)];
-        if (!randomColors.includes(randomColor)) {
-          randomColors.push(randomColor);
-        }
-      }
+      const shuffledColors = response.data.results.sort(() => Math.random() - 0.5);
+      const randomColors: Array<{ name: string; url: string }> = shuffledColors.slice(0, 4);
       // randomColors.url から色の名前を取得
       // 日本語と英語の名前を取得
       const colorData = await Promise.all(randomColors.map(async (color: any) => {
