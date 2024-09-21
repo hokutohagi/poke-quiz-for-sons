@@ -4,15 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Volume2, HelpCircle, Lightbulb, Award } from 'lucide-react';
 import { quizCategories, achievements } from '~/data/pokemon-data';
-import { PokemonData, QuizCategory, Achievement } from '~/types';
-import { getRandomPokemon, getRandomCategory, generateOptions, getProgressiveHint } from '~/utils/quiz-helpers';
+import { PokemonData, QuizCategory, Achievement, Option } from '~/types';
+import { getRandomCategory, generateOptions, getProgressiveHint } from '~/utils/quiz-helpers';
 import { getRandomPokemonData } from '~/utils/pokemon-api'; // データ取得関数をインポート
 
 
 export const PokemonQuiz: React.FC = () => {
-  const [currentPokemon, setCurrentPokemon] = useState<any | null>(null);
-  const [currentCategory, setCurrentCategory] = useState<QuizCategory | null>(null);
-  const [options, setOptions] = useState<string[]>([]);
+  const [currentPokemon, setCurrentPokemon] = useState<PokemonData | null>(null);
+  const [currentCategory, setCurrentCategory] = useState<QuizCategory>({"en": "color", "jp": "いろ"});
+  const [options, setOptions] = useState<Option[]>([]);
   const [disabledOptions, setDisabledOptions] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isShowJapaneseDisabled, setIsShowJapaneseDisabled] = useState(false);
@@ -30,8 +30,17 @@ export const PokemonQuiz: React.FC = () => {
   const startNewQuiz = useCallback(async () => {
     try {
       const pokemon = await getRandomPokemonData();
-      console.log('pokemon:', pokemon);
-      const category = getRandomCategory(quizCategories);
+      if (!pokemon) {
+        throw new Error('Failed to fetch Pokemon data');
+      }
+      // console.log('pokemon:', pokemon);
+      // const category = getRandomCategory(quizCategories);
+      const category = {"en": "color", "jp": "いろ"};
+      console.log('category:', category);
+      const correctAnswer = pokemon[category.en as keyof PokemonData] as string;
+      console.log('correctAnswer:', correctAnswer);
+      const options = await generateOptions(category, pokemon);
+      console.log('options:', options);
       setCurrentPokemon(pokemon);
       setCurrentCategory(category);
       setDisabledOptions([]);
@@ -39,6 +48,7 @@ export const PokemonQuiz: React.FC = () => {
       setShowJapanese(false);
       setShowHint(false);
       setHintLevel(0);
+      setOptions(options);
     } catch (error) {
       console.error('Error starting new quiz:', error);
     }
@@ -114,8 +124,11 @@ export const PokemonQuiz: React.FC = () => {
 
   const handleAnswer = (answer: string) => {
     if (!currentPokemon || !currentCategory) return;
+
+    const currentProperty = currentPokemon[currentCategory.en as keyof PokemonData];
+    if (typeof currentProperty !== 'object' || currentProperty === null) return;
     
-    const correct = answer === currentPokemon[currentCategory.en as keyof PokemonData];
+    const correct = answer === currentProperty.en;
     if (correct) {
       const newStreak = correctStreak + 1;
       setCorrectStreak(newStreak);
@@ -124,7 +137,7 @@ export const PokemonQuiz: React.FC = () => {
       checkAchievement(newStreak);
       setModalContent({
         title: 'Correct!',
-        description: `Great job! ${currentPokemon.nameEn}'s ${currentCategory.en} is indeed ${answer}.`
+        description: `Great job! ${currentPokemon.name.en}'s ${currentCategory.en} is indeed ${answer}.`
       });
     } else {
       setIncorrectStreak(prevStreak => prevStreak + 1);
@@ -172,11 +185,11 @@ export const PokemonQuiz: React.FC = () => {
       <Card className="mb-4">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
-            <span>{currentPokemon.nameEn} {showJapanese && `(${currentPokemon.nameJp})`}</span>
+            <span>{currentPokemon.name.en} {showJapanese && `(${currentPokemon.name.jp})`}</span>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => speakText(currentPokemon.nameEn, currentPokemon.nameJp)}
+              onClick={() => speakText(currentPokemon.name.en, currentPokemon.name.jp)}
             >
               <Volume2 className="h-4 w-4" />
             </Button>
@@ -185,7 +198,7 @@ export const PokemonQuiz: React.FC = () => {
         <CardContent>
           <img
             src={currentPokemon.image}
-            alt={currentPokemon.nameEn}
+            alt={currentPokemon.name.en}
             className="w-full h-48 object-contain mb-4"
           />
           <p className="mb-2 flex justify-between items-center">
@@ -207,17 +220,17 @@ export const PokemonQuiz: React.FC = () => {
             {options.map((option, index) => (
               <Button
                 key={index}
-                onClick={() => handleAnswer(option)}
-                variant={disabledOptions.includes(option) ? 'destructive' : 'outline'}
-                disabled={disabledOptions.includes(option)}
+                onClick={() => handleAnswer(option.en)}
+                variant={disabledOptions.includes(option.en) ? 'destructive' : 'outline'}
+                disabled={disabledOptions.includes(option.en)}
                 className="relative"
               >
-                {option}
+                {option.en}
                 <small className="block">
                   {showJapanese
-                  ? japaneseTranslations[option as keyof typeof japaneseTranslations]
+                  ? option.jp
                   : showHint
-                  ? getProgressiveHint(japaneseTranslations[option as keyof typeof japaneseTranslations], hintLevel)
+                  ? getProgressiveHint(option.jp, hintLevel)
                   : ''}
                 </small>
               </Button>

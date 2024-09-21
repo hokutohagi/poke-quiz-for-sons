@@ -4,7 +4,6 @@ import { PokemonData } from '../types/index';
 
 export const getRandomPokemonData = async () => {
     try {
-      console.log('Starting getRandomPokemonData function');
     //   const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=1');
     //   const totalPokemon = response.data.count;
       let randomId: number;
@@ -19,20 +18,37 @@ export const getRandomPokemonData = async () => {
           try {
             let pokemonResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
             let pokemonResponseData = pokemonResponse.data;
+
             let speciesResponse = await axios.get(pokemonResponseData.species.url);
             let speciesResponseData = speciesResponse.data;
 
+            let colorResponse = await axios.get(speciesResponseData.color.url);
+            let colorResponseData = colorResponse.data;
+
+            // slot 1のタイプを取得
+            let typeUrl = pokemonResponseData.types.find((type: any) => type.slot === 1).type.url;
+            let typeResponse = await axios.get(typeUrl);
+            let typeResponseData = typeResponse.data;
+
             const pokeData: PokemonData = {
                 id: pokemonResponseData.id,
-                nameJp: pokemonResponseData.name,
-                nameEn: pokemonResponseData.name,
-                colorJp: speciesResponseData.color.name,
-                colorEn: speciesResponseData.color.name,
-                typeJp: pokemonResponseData.types[0].type.name,
-                typeEn: pokemonResponseData.types[0].type.name,
-                generaJp: speciesResponseData.genera[0].genus,
-                generaEn: speciesResponseData.genera[0].genus,
-                descriptionJp: speciesResponseData.flavor_text_entries[0].flavor_text,
+                name: {
+                    jp: speciesResponseData.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || speciesResponseData.names[0].name,
+                    en: pokemonResponseData.name
+                },
+                color: {
+                    jp: colorResponseData.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || colorResponseData.names[0].name,
+                    en: speciesResponseData.color.name
+                },
+                type: { // TODO: 複数のタイプを持つポケモンがいるため、配列にする
+                    jp: typeResponseData.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || typeResponseData.names[0].name,
+                    en: typeResponseData.names.find((name: any) => name.language.name === 'en')?.name || typeResponseData.names[0].name
+                },
+                genera: {
+                    jp: speciesResponseData.genera.find((genus: any) => genus.language.name === 'ja-Hrkt')?.genus || speciesResponseData.genera[0].genus,
+                    en: speciesResponseData.genera.find((genus: any) => genus.language.name === 'en')?.genus || speciesResponseData.genera[0].genus
+                },
+                descriptionJp: speciesResponseData.flavor_text_entries.find((entry: any) => entry.language.name === 'ja-Hrkt')?.flavor_text || speciesResponseData.flavor_text_entries[0].flavor_text,
                 image: pokemonResponseData.sprites.front_default
             };
             
@@ -64,4 +80,45 @@ export const getRandomPokemonData = async () => {
       throw error;
     }
   };
-  
+
+  export const getColors = async () => {
+    try {
+      const response = await axios.get('https://pokeapi.co/api/v2/pokemon-color');
+      // response.data.results のからランダムに4つの色を選ぶ
+      const shuffledColors = response.data.results.sort(() => Math.random() - 0.5);
+      const randomColors: Array<{ name: string; url: string }> = shuffledColors.slice(0, 4);
+      // randomColors.url から色の名前を取得
+      // 日本語と英語の名前を取得
+      const colorData = await Promise.all(randomColors.map(async (color: any) => {
+        const colorResponse = await axios.get(color.url);
+        return {
+          jp: (colorResponse.data.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || colorResponse.data.names[0].name).toLowerCase(),
+          en: (colorResponse.data.names.find((name: any) => name.language.name === 'en')?.name || colorResponse.data.names[0].name).toLowerCase()
+        };
+      }));
+      return colorData;
+    } catch (error) {
+      console.error('Error in getColors:', error);
+      throw error;
+    }
+  };
+
+export const getTypes = async () => {
+    try {
+      const response = await axios.get('https://pokeapi.co/api/v2/type');
+      return response.data.results;
+    } catch (error) {
+      console.error('Error in getTypes:', error);
+      throw error;
+    }
+  };
+
+export const getGenera = async () => {
+    try {
+      const response = await axios.get('https://pokeapi.co/api/v2/generation');
+      return response.data.results;
+    } catch (error) {
+      console.error('Error in getGenera:', error);
+      throw error
+    }
+};

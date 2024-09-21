@@ -1,13 +1,21 @@
 export interface PokemonData {
     id: number;
-    nameJp: string;
-    nameEn: string;
-    colorJp: string;
-    colorEn: string;
-    typeJp: string;
-    typeEn: string;
-    generaJp: string;
-    generaEn: string;
+    name: {
+        jp: string;
+        en: string;
+    },
+    color: {
+        jp: string;
+        en: string;
+    },
+    type: {
+        jp: string;
+        en: string;
+    },
+    genera: {
+        jp: string;
+        en: string;
+    },
     descriptionJp: string;
     image: string;
 }
@@ -21,4 +29,9 @@ export interface Achievement {
     streak: number;
     title: string;
     message: string;
+}
+
+export interface Option {
+    en: string;
+    jp: string;
 }
