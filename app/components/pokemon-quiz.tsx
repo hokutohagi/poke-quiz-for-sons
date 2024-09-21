@@ -185,7 +185,7 @@ export const PokemonQuiz: React.FC = () => {
       <Card className="mb-4">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
-            <span>{currentPokemon.name.en} {showJapanese && `(${currentPokemon.name.jp})`}</span>
+            <span>{currentPokemon.name.en} {`(${currentPokemon.name.jp})`}</span>
             <Button
               variant="ghost"
               size="icon"
