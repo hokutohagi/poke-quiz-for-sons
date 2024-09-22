@@ -77,16 +77,16 @@ export const getProgressiveHint = (word: string, hintLevel: number): string => {
   const masks = ['＿', '○', '■', '★'];
   switch (hintLevel) {
     case 0:
-      return '????';
+      return '(????)';
     case 1:
-      return word[0] + '???';
+      return `(${word[0]}???)`;
     case 2:
-      return word.split('').map((char, index) => 
+      return `(${word.split('').map((char, index) => 
         index % 2 === 0 ? char : masks[Math.floor(Math.random() * masks.length)]
-      ).join('');
+      ).join('')})`;
     case 3:
-      return word;
+      return `(${word})`;
     default:
-      return word;
+      return `(${word})`;
   }
 };

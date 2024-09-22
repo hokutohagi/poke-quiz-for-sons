@@ -210,7 +210,7 @@ export const PokemonQuiz: React.FC = () => {
               size="icon"
               onClick={() => speakText(
                 `What is this Pokémon's ${currentCategory.en}?`,
-                `このポケモンの${currentCategory.jp}はなんですか？`
+                `このポケモンの${currentCategory.jp}は、なんですか？`
               )}
             >
               <Volume2 className="h-4 w-4" />
@@ -227,11 +227,11 @@ export const PokemonQuiz: React.FC = () => {
               >
                 {option.en}
                 <small className="block">
-                  {showJapanese
-                  ? option.jp
-                  : showHint
-                  ? getProgressiveHint(option.jp, hintLevel)
-                  : ''}
+                    {showJapanese
+                    ? `(${option.jp})`
+                    : showHint
+                    ? getProgressiveHint(option.jp, hintLevel)
+                    : ''}
                 </small>
               </Button>
             ))}
