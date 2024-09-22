@@ -161,9 +161,11 @@ export const PokemonQuiz: React.FC = () => {
 
   const speakText = (textEn: string, textJp: string) => {
     const utteranceEn = new SpeechSynthesisUtterance(textEn);
-    utteranceEn.lang = 'en-US';
+    utteranceEn.lang = 'en-GB';
+    utteranceEn.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google UK English Female') || null;
     const utteranceJp = new SpeechSynthesisUtterance(textJp);
     utteranceJp.lang = 'ja-JP';
+    utteranceJp.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google 日本語') || null;
 
     utteranceEn.onend = () => {
       setTimeout(() => {
