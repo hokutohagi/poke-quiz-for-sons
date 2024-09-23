@@ -35,7 +35,7 @@ export const PokemonQuiz: React.FC = () => {
       }
       // console.log('pokemon:', pokemon);
       // const category = getRandomCategory(quizCategories);
-      const category = {"en": "color", "jp": "いろ"};
+      const category = {"en": "type", "jp": "タイプ"};
       console.log('category:', category);
       const correctAnswer = pokemon[category.en as keyof PokemonData] as string;
       console.log('correctAnswer:', correctAnswer);

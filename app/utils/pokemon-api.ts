@@ -106,7 +106,19 @@ export const getRandomPokemonData = async () => {
 export const getTypes = async () => {
     try {
       const response = await axios.get('https://pokeapi.co/api/v2/type');
-      return response.data.results;
+      // response.data.results のからランダムに4つの色を選ぶ
+      const shuffledTypes = response.data.results.sort(() => Math.random() - 0.5);
+      const randomTypes: Array<{ name: string; url: string }> = shuffledTypes.slice(0, 4);
+      // randomColors.url から色の名前を取得
+      // 日本語と英語の名前を取得
+      const typeData = await Promise.all(randomTypes.map(async (type: any) => {
+        const typeResponse = await axios.get(type.url);
+        return {
+          jp: (typeResponse.data.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || typeResponse.data.names[0].name).toLowerCase(),
+          en: (typeResponse.data.names.find((name: any) => name.language.name === 'en')?.name || typeResponse.data.names[0].name).toLowerCase()
+        };
+      }));
+      return typeData;
     } catch (error) {
       console.error('Error in getTypes:', error);
       throw error;

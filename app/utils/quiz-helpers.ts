@@ -18,8 +18,8 @@ export const generateOptions = async(category: QuizCategory, pokemonData: Pokemo
   switch (category.en) {
     case 'color':
       return await generateColorOptions(correctAnswer, pokemonData);
-    // case 'type':
-    //   return generateTypeOptions(correctAnswer, pokemonData);
+    case 'type':
+      return generateTypeOptions(correctAnswer, pokemonData);
     // case 'genera':
     //   return generateGeneraOptions(correctAnswer, pokemonData);
     default:
@@ -69,6 +69,46 @@ const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonD
     }
   }
 
+  // シャッフルして返す
+  return uniqueOptions.sort(() => 0.5 - Math.random());
+};
+
+const generateTypeOptions = async(correctAnswer: Option, pokemonData: PokemonData): Promise<Option[]> => {
+  let types;
+  try {
+    types = await getTypes();
+  } catch (error) {
+    console.error('Error in generateTypeOptions:', error);
+    throw error;
+  }
+  const randomTypes = types.map((type: { jp: string; en: string }) => ({ jp: type.jp, en: type.en }));
+  // ユニークな選択肢を生成
+  const uniqueOptionsSet = new Set<string>();
+  const uniqueOptions: Option[] = [];
+  // 正解を追加
+  uniqueOptionsSet.add(correctAnswer.en);
+  uniqueOptions.push(correctAnswer);
+  // ランダムなタイプを追加
+  for (const type of randomTypes) {
+    if (uniqueOptionsSet.size >= 4) break;
+    if (!uniqueOptionsSet.has(type.en)) {
+      uniqueOptionsSet.add(type.en);
+      uniqueOptions.push(type);
+    }
+  }
+  // ユニークなタイプが4つ未満であればエラーとして処理
+  const uniqueTypeCount = new Set(randomTypes.map(type => type.en)).size;
+  if (uniqueTypeCount < 4) {
+    throw new Error('Failed to generate unique type options.');
+  }
+  // ユニークな選択肢が4つ未満の場合、再度ランダムなタイプを追加
+  while (uniqueOptionsSet.size < 4) {
+    const randomType = randomTypes[Math.floor(Math.random() * randomTypes.length)];
+    if (!uniqueOptionsSet.has(randomType.en)) {
+      uniqueOptionsSet.add(randomType.en);
+      uniqueOptions.push(randomType);
+    }
+  }
   // シャッフルして返す
   return uniqueOptions.sort(() => 0.5 - Math.random());
 };
