@@ -25,7 +25,7 @@ export const getRandomPokemonData = async () => {
             let colorResponse = await axios.get(speciesResponseData.color.url);
             let colorResponseData = colorResponse.data;
 
-            // slot 1のタイプを取得
+            // 複数のタイプを持つポケモンが、正解に使うので slot 1のタイプに限定して取得
             let typeUrl = pokemonResponseData.types.find((type: any) => type.slot === 1).type.url;
             let typeResponse = await axios.get(typeUrl);
             let typeResponseData = typeResponse.data;
@@ -42,7 +42,7 @@ export const getRandomPokemonData = async () => {
                 },
                 type: { // TODO: 複数のタイプを持つポケモンがいるため、配列にする
                     jp: typeResponseData.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || typeResponseData.names[0].name,
-                    en: typeResponseData.names.find((name: any) => name.language.name === 'en')?.name || typeResponseData.names[0].name
+                    en: typeResponseData.names.find((name: any) => name.language.name === 'en')?.name.toLowerCase() || typeResponseData.names[0].name.toLowerCase()
                 },
                 genera: {
                     jp: speciesResponseData.genera.find((genus: any) => genus.language.name === 'ja-Hrkt')?.genus || speciesResponseData.genera[0].genus,
