@@ -6,7 +6,7 @@ import { Volume2, HelpCircle, Lightbulb, Award } from 'lucide-react';
 import { quizCategories, achievements } from '~/data/pokemon-data';
 import { PokemonData, QuizCategory, Achievement, Option } from '~/types';
 import { getRandomCategory, generateOptions, getProgressiveHint } from '~/utils/quiz-helpers';
-import { getRandomPokemonData } from '~/utils/pokemon-api'; // データ取得関数をインポート
+import { getRandomPokemonData } from '~/utils/pokemon-api';
 
 
 export const PokemonQuiz: React.FC = () => {
@@ -33,14 +33,9 @@ export const PokemonQuiz: React.FC = () => {
       if (!pokemon) {
         throw new Error('Failed to fetch Pokemon data');
       }
-      // console.log('pokemon:', pokemon);
-      // const category = getRandomCategory(quizCategories);
-      const category = {"en": "type", "jp": "タイプ"};
-      console.log('category:', category);
+      const category = getRandomCategory(quizCategories);
       const correctAnswer = pokemon[category.en as keyof PokemonData] as string;
-      console.log('correctAnswer:', correctAnswer);
       const options = await generateOptions(category, pokemon);
-      console.log('options:', options);
       setCurrentPokemon(pokemon);
       setCurrentCategory(category);
       setDisabledOptions([]);
@@ -77,29 +72,29 @@ export const PokemonQuiz: React.FC = () => {
 
   const getCorrectFeedback = () => {
     const feedbacks = [
-      "Correct! Well done!",
-      "Great job! You're right!",
-      "Excellent! Keep it up!",
-      "Perfect! You're on fire!",
-      "Amazing! You're a Pokémon master!"
+      "せいかい！よくできたね！",
+      "すごい！あってるよ！",
+      "ばっちり！そのちょうし！",
+      "かんぺき！すごいね！",
+      "すごい！きみはポケモンマスターだ！"
     ];
     return feedbacks[Math.min(correctStreak, feedbacks.length - 1)];
   };
 
   const getIncorrectFeedback = () => {
     const feedbacks = [
-      "Not quite, but don't worry! Every attempt helps you learn.",
-      "Close! Remember, making mistakes is part of learning.",
-      "Keep trying! You're getting better with each guess.",
-      "That's not it, but your effort is awesome! Keep going!",
-      "You're putting in great effort! The right answer is just around the corner."
+      "ちょっとちがうよ！でもだいじょうぶ！",
+      "おしいね！もういっかいやってみよう！",
+      "がんばって！つぎはできるよ！",
+      "ちがうけど、よくがんばったね！",
+      "もうすこしだよ！つぎはせいかいできるよ！"
     ];
     const encouragements = [
-      "You can do it!",
-      "Believe in yourself!",
-      "Stay positive!",
-      "Keep up the good work!",
-      "You're making progress!"
+      "がんばって！",
+      "じぶんをしんじて！",
+      "ポジティブにいこう！",
+      "そのちょうし！",
+      "すこしずつすすんでるよ！"
     ];
     const feedback = feedbacks[Math.min(incorrectStreak, feedbacks.length - 1)];
     const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
@@ -109,7 +104,9 @@ export const PokemonQuiz: React.FC = () => {
   const speakFeedback = (isCorrect: boolean) => {
     const message = isCorrect ? getCorrectFeedback() : getIncorrectFeedback();
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = 'en-US';
+    utterance.lang = 'ja-JP';
+    const japaneseVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'ja-JP');
+    utterance.voice = japaneseVoices.find(voice => voice.name === 'O-Ren') || japaneseVoices[0] || null;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -123,6 +120,8 @@ export const PokemonQuiz: React.FC = () => {
   };
 
   const handleAnswer = (answer: string) => {
+    speakText(answer, '');
+
     if (!currentPokemon || !currentCategory) return;
 
     const currentProperty = currentPokemon[currentCategory.en as keyof PokemonData];
@@ -136,8 +135,8 @@ export const PokemonQuiz: React.FC = () => {
       setIncorrectStreak(0);
       checkAchievement(newStreak);
       setModalContent({
-        title: 'Correct!',
-        description: `Great job! ${currentPokemon.name.en}'s ${currentCategory.en} is indeed ${answer}.`
+        title: 'せいかい!',
+        description: `Great job! ${currentPokemon.name.jp}の${currentCategory.jp}は、 ${answer}！`
       });
     } else {
       setIncorrectStreak(prevStreak => prevStreak + 1);
@@ -146,7 +145,7 @@ export const PokemonQuiz: React.FC = () => {
       setHintLevel(prevLevel => Math.min(prevLevel + 1, 3));
       const feedback = getIncorrectFeedback();
       setModalContent({
-        title: 'Not quite',
+        title: 'ざんねん！もういちど！',
         description: feedback
       });
     }
@@ -162,10 +161,12 @@ export const PokemonQuiz: React.FC = () => {
   const speakText = (textEn: string, textJp: string) => {
     const utteranceEn = new SpeechSynthesisUtterance(textEn);
     utteranceEn.lang = 'en-GB';
-    utteranceEn.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google UK English Female') || null;
+    const englishVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'en-GB');
+    utteranceEn.voice = englishVoices.find(voice => voice.name === 'Google UK English Female') || englishVoices[0] || null;
     const utteranceJp = new SpeechSynthesisUtterance(textJp);
     utteranceJp.lang = 'ja-JP';
-    utteranceJp.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google 日本語') || null;
+    const japaneseVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'ja-JP');
+    utteranceJp.voice = japaneseVoices.find(voice => voice.name === 'O-Ren') || japaneseVoices[0] || null;
 
     utteranceEn.onend = () => {
       setTimeout(() => {
@@ -198,13 +199,25 @@ export const PokemonQuiz: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <p className="mb-2 flex justify-between items-center">
+            <span>{currentPokemon.descriptionJp}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => speakText('', currentPokemon.descriptionJp)}
+              >
+                <Volume2 className="h-4 w-4" />
+              </Button>
+          </p>
+        </CardContent>
+        <CardContent>
           <img
             src={currentPokemon.image}
             alt={currentPokemon.name.en}
             className="w-full h-48 object-contain mb-4"
           />
-          <p className="mb-2 flex justify-between items-center">
-            <span>
+          <p className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 flex justify-between items-center">
+            <span className="font-bold text-lg">
               What is this Pokémon's <strong>{currentCategory.en}</strong>?
             </span>
             <Button
@@ -244,22 +257,22 @@ export const PokemonQuiz: React.FC = () => {
         <Button onClick={startNewQuiz} className="flex-grow mr-2">
           Skip
         </Button>
-        <Button
+        {/* <Button
           variant="outline"
           onClick={() => setShowHint(!showHint)}
           className="flex-shrink-0 mr-2"
         >
           <Lightbulb className="h-4 w-4 mr-2" />
           {showHint ? 'Hide Hint' : 'Show Hint'}
-        </Button>
+        </Button> */}
         <Button
           variant="outline"
           onClick={handleShowJapaneseClick}
-          className="flex-shrink-0"
+          className="flex-grow"
           disabled={isShowJapaneseDisabled}
         >
           <HelpCircle className="h-4 w-4 mr-2" />
-          {showJapanese ? 'Hide Japanese' : 'Show Japanese'}
+          {showJapanese ? 'かくす' : 'にほんご'}
         </Button>
       </div>
 
@@ -270,7 +283,7 @@ export const PokemonQuiz: React.FC = () => {
             <DialogDescription>{modalContent.description}</DialogDescription>
           </DialogHeader>
           <Button onClick={handleModalClose}>
-            {isCorrect ? 'Next Question' : 'Try Again'}
+            {isCorrect ? 'つぎのクイズ' : 'もういちど'}
           </Button>
         </DialogContent>
       </Dialog>
