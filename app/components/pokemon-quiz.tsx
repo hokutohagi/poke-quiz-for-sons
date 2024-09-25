@@ -105,7 +105,8 @@ export const PokemonQuiz: React.FC = () => {
     const message = isCorrect ? getCorrectFeedback() : getIncorrectFeedback();
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = 'ja-JP';
-    utterance.voice = speechSynthesis.getVoices().find(voice => voice.name === 'O-Ren') || null;
+    const japaneseVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'ja-JP');
+    utterance.voice = japaneseVoices.find(voice => voice.name === 'O-Ren') || japaneseVoices[0] || null;
     window.speechSynthesis.speak(utterance);
   };
 
@@ -160,10 +161,12 @@ export const PokemonQuiz: React.FC = () => {
   const speakText = (textEn: string, textJp: string) => {
     const utteranceEn = new SpeechSynthesisUtterance(textEn);
     utteranceEn.lang = 'en-GB';
-    utteranceEn.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google UK English Female') || null;
+    const englishVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'en-GB');
+    utteranceEn.voice = englishVoices.find(voice => voice.name === 'Google UK English Female') || englishVoices[0] || null;
     const utteranceJp = new SpeechSynthesisUtterance(textJp);
     utteranceJp.lang = 'ja-JP';
-    utteranceJp.voice = speechSynthesis.getVoices().find(voice => voice.name === 'O-Ren') || null;
+    const japaneseVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'ja-JP');
+    utteranceJp.voice = japaneseVoices.find(voice => voice.name === 'O-Ren') || japaneseVoices[0] || null;
 
     utteranceEn.onend = () => {
       setTimeout(() => {
@@ -269,7 +272,7 @@ export const PokemonQuiz: React.FC = () => {
           disabled={isShowJapaneseDisabled}
         >
           <HelpCircle className="h-4 w-4 mr-2" />
-          {showJapanese ? 'えいご' : 'にほんご'}
+          {showJapanese ? 'かくす' : 'にほんご'}
         </Button>
       </div>
 
