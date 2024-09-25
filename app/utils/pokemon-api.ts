@@ -25,7 +25,7 @@ export const getRandomPokemonData = async () => {
             let colorResponse = await axios.get(speciesResponseData.color.url);
             let colorResponseData = colorResponse.data;
 
-            // slot 1のタイプを取得
+            // 複数のタイプを持つポケモンが、正解に使うので slot 1のタイプに限定して取得
             let typeUrl = pokemonResponseData.types.find((type: any) => type.slot === 1).type.url;
             let typeResponse = await axios.get(typeUrl);
             let typeResponseData = typeResponse.data;
@@ -42,7 +42,7 @@ export const getRandomPokemonData = async () => {
                 },
                 type: { // TODO: 複数のタイプを持つポケモンがいるため、配列にする
                     jp: typeResponseData.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || typeResponseData.names[0].name,
-                    en: typeResponseData.names.find((name: any) => name.language.name === 'en')?.name || typeResponseData.names[0].name
+                    en: typeResponseData.names.find((name: any) => name.language.name === 'en')?.name.toLowerCase() || typeResponseData.names[0].name.toLowerCase()
                 },
                 genera: {
                     jp: speciesResponseData.genera.find((genus: any) => genus.language.name === 'ja-Hrkt')?.genus || speciesResponseData.genera[0].genus,
@@ -106,7 +106,19 @@ export const getRandomPokemonData = async () => {
 export const getTypes = async () => {
     try {
       const response = await axios.get('https://pokeapi.co/api/v2/type');
-      return response.data.results;
+      // response.data.results のからランダムに4つの色を選ぶ
+      const shuffledTypes = response.data.results.sort(() => Math.random() - 0.5);
+      const randomTypes: Array<{ name: string; url: string }> = shuffledTypes.slice(0, 4);
+      // randomTypes.url から色の名前を取得
+      // 日本語と英語の名前を取得
+      const typeData = await Promise.all(randomTypes.map(async (type: any) => {
+        const typeResponse = await axios.get(type.url);
+        return {
+          jp: (typeResponse.data.names.find((name: any) => name.language.name === 'ja-Hrkt')?.name || typeResponse.data.names[0].name).toLowerCase(),
+          en: (typeResponse.data.names.find((name: any) => name.language.name === 'en')?.name || typeResponse.data.names[0].name).toLowerCase()
+        };
+      }));
+      return typeData;
     } catch (error) {
       console.error('Error in getTypes:', error);
       throw error;
