@@ -109,7 +109,7 @@ export const getTypes = async () => {
       // response.data.results のからランダムに4つの色を選ぶ
       const shuffledTypes = response.data.results.sort(() => Math.random() - 0.5);
       const randomTypes: Array<{ name: string; url: string }> = shuffledTypes.slice(0, 4);
-      // randomColors.url から色の名前を取得
+      // randomTypes.url から色の名前を取得
       // 日本語と英語の名前を取得
       const typeData = await Promise.all(randomTypes.map(async (type: any) => {
         const typeResponse = await axios.get(type.url);

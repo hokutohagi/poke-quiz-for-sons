@@ -1,6 +1,8 @@
 import { PokemonData, QuizCategory, Option } from '~/types';
 import { getColors, getTypes, getGenera } from '~/utils/pokemon-api';
 
+const REQUIRED_OPTIONS_COUNT = 4;
+
 export const getRandomPokemon = (pokemonData: PokemonData[]): PokemonData => {
   const randomIndex = Math.floor(Math.random() * pokemonData.length);
   return pokemonData[randomIndex];
@@ -47,7 +49,7 @@ const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonD
 
   // ランダムな色を追加
   for (const color of randomColors) {
-    if (uniqueOptionsSet.size >= 4) break;
+    if (uniqueOptionsSet.size >= REQUIRED_OPTIONS_COUNT) break;
     if (!uniqueOptionsSet.has(color.en)) {
       uniqueOptionsSet.add(color.en);
       uniqueOptions.push(color);
@@ -56,7 +58,7 @@ const generateColorOptions = async (correctAnswer: Option, pokemonData: PokemonD
 
   // ユニークなカラーが4つ未満であればエラーとして処理
   const uniqueColorCount = new Set(randomColors.map(color => color.en)).size;
-  if (uniqueColorCount < 4) {
+  if (uniqueColorCount < REQUIRED_OPTIONS_COUNT) {
     throw new Error('Failed to generate unique color options.');
   }
 
@@ -78,8 +80,8 @@ const generateTypeOptions = async(correctAnswer: Option, pokemonData: PokemonDat
   try {
     types = await getTypes();
   } catch (error) {
-    console.error('Error in generateTypeOptions:', error);
-    throw error;
+    console.error('Error fetching Pokemon types:', error);
+    throw new Error('Failed to fetch Pokemon types. Please try again later.');
   }
   const randomTypes = types.map((type: { jp: string; en: string }) => ({ jp: type.jp, en: type.en }));
   // ユニークな選択肢を生成
@@ -90,7 +92,7 @@ const generateTypeOptions = async(correctAnswer: Option, pokemonData: PokemonDat
   uniqueOptions.push(correctAnswer);
   // ランダムなタイプを追加
   for (const type of randomTypes) {
-    if (uniqueOptionsSet.size >= 4) break;
+    if (uniqueOptionsSet.size >= REQUIRED_OPTIONS_COUNT) break;
     if (!uniqueOptionsSet.has(type.en)) {
       uniqueOptionsSet.add(type.en);
       uniqueOptions.push(type);
@@ -102,7 +104,7 @@ const generateTypeOptions = async(correctAnswer: Option, pokemonData: PokemonDat
     throw new Error('Failed to generate unique type options.');
   }
   // ユニークな選択肢が4つ未満の場合、再度ランダムなタイプを追加
-  while (uniqueOptionsSet.size < 4) {
+  while (uniqueOptionsSet.size < REQUIRED_OPTIONS_COUNT) {
     const randomType = randomTypes[Math.floor(Math.random() * randomTypes.length)];
     if (!uniqueOptionsSet.has(randomType.en)) {
       uniqueOptionsSet.add(randomType.en);
