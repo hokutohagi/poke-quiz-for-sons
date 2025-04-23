@@ -43,7 +43,7 @@
 
 1. リポジトリをクローンします
 ```bash
-git clone https://github.com/yourusername/poke-quiz-for-sons.git
+git clone https://github.com/hokutohagi/poke-quiz-for-sons.git
 cd poke-quiz-for-sons
 ```
 
