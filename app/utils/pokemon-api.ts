@@ -1,11 +1,13 @@
 import axios from 'axios';
 import {
   PokemonData,
-  PokemonApiNameObject,
-  PokemonApiGenusObject,
-  PokemonApiFlavorTextEntry,
-  PokemonApiTypeSlot,
-  PokemonApiResource,
+  PokemonApiResponse,
+  PokemonSpeciesApiResponse,
+  PokemonTypeApiResponse,
+  PokemonColorApiResponse,
+  ColorListResponse,
+  TypeListResponse,
+  GenerationListResponse,
   TranslatedName
 } from '../types/index';
 import { getJapaneseText, getEnglishText, shuffleArray } from './pokemon-utils';
@@ -14,38 +16,6 @@ import { getJapaneseText, getEnglishText, shuffleArray } from './pokemon-utils';
 const MAX_POKEMON_ID = 800;   // 取得対象のポケモンの最大ID
 const MAX_ATTEMPT_COUNT = 5;  // API取得の最大試行回数
 const OPTIONS_COUNT = 4;      // クイズの選択肢の数
-
-interface PokemonApiResponse {
-  id: number;
-  name: string;
-  sprites: {
-    front_default: string;
-    [key: string]: any;
-  };
-  types: PokemonApiTypeSlot[];
-  species: {
-    name: string;
-    url: string;
-  };
-}
-
-interface PokemonSpeciesApiResponse {
-  names: PokemonApiNameObject[];
-  color: {
-    name: string;
-    url: string;
-  };
-  genera: PokemonApiGenusObject[];
-  flavor_text_entries: PokemonApiFlavorTextEntry[];
-}
-
-interface PokemonTypeApiResponse {
-  names: PokemonApiNameObject[];
-}
-
-interface PokemonColorApiResponse {
-  names: PokemonApiNameObject[];
-}
 
 export const getRandomPokemonData = async (): Promise<PokemonData> => {
     try {
@@ -142,10 +112,6 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
 export const getColors = async (): Promise<TranslatedName[]> => {
     try {
       // 色の一覧を取得
-      interface ColorListResponse {
-        results: PokemonApiResource[];
-      }
-
       const response = await axios.get<ColorListResponse>('https://pokeapi.co/api/v2/pokemon-color');
 
       // ランダムに選択肢の数だけ色を選択
@@ -177,10 +143,6 @@ export const getColors = async (): Promise<TranslatedName[]> => {
 export const getTypes = async (): Promise<TranslatedName[]> => {
     try {
       // タイプの一覧を取得
-      interface TypeListResponse {
-        results: PokemonApiResource[];
-      }
-
       const response = await axios.get<TypeListResponse>('https://pokeapi.co/api/v2/type');
 
       // ランダムに選択肢の数だけタイプを選択
@@ -210,10 +172,6 @@ export const getTypes = async (): Promise<TranslatedName[]> => {
  */
 export const getGenera = async (): Promise<PokemonApiResource[]> => {
     try {
-      interface GenerationListResponse {
-        results: PokemonApiResource[];
-      }
-
       const response = await axios.get<GenerationListResponse>('https://pokeapi.co/api/v2/generation');
       return response.data.results;
     } catch (error) {

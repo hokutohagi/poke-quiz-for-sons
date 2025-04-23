@@ -15,7 +15,7 @@ export interface PokemonData {
     image: string;
 }
 
-// PokeAPI関連の型定義
+// PokeAPI関連の基本型定義
 export interface PokemonApiNameObject {
     name: string;
     language: {
@@ -55,6 +55,51 @@ export interface PokemonApiTypeSlot {
 export interface PokemonApiResource {
     name: string;
     url: string;
+}
+
+// PokeAPI レスポンス型定義
+export interface PokemonApiResponse {
+    id: number;
+    name: string;
+    sprites: {
+        front_default: string;
+        [key: string]: any;
+    };
+    types: PokemonApiTypeSlot[];
+    species: {
+        name: string;
+        url: string;
+    };
+}
+
+export interface PokemonSpeciesApiResponse {
+    names: PokemonApiNameObject[];
+    color: {
+        name: string;
+        url: string;
+    };
+    genera: PokemonApiGenusObject[];
+    flavor_text_entries: PokemonApiFlavorTextEntry[];
+}
+
+export interface PokemonTypeApiResponse {
+    names: PokemonApiNameObject[];
+}
+
+export interface PokemonColorApiResponse {
+    names: PokemonApiNameObject[];
+}
+
+export interface ColorListResponse {
+    results: PokemonApiResource[];
+}
+
+export interface TypeListResponse {
+    results: PokemonApiResource[];
+}
+
+export interface GenerationListResponse {
+    results: PokemonApiResource[];
 }
 
 // クイズ関連の型定義
