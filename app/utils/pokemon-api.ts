@@ -173,7 +173,8 @@ export const getTypes = async (): Promise<TranslatedName[]> => {
 export const getGenera = async (): Promise<PokemonApiResource[]> => {
     try {
       const response = await axios.get<GenerationListResponse>('https://pokeapi.co/api/v2/generation');
-      return response.data.results;
+      // イミュータブルな配列を返す
+      return [...response.data.results];
     } catch (error) {
       console.error('Error in getGenera:', error);
       throw error;
