@@ -10,13 +10,18 @@ import {
   GenerationListResponse,
   TranslatedName
 } from '../types/index';
-import { getJapaneseText, getEnglishText, shuffleArray } from './pokemon-utils';
+import { getJapaneseText, getEnglishText, shuffleArray, handleApiError } from './pokemon-utils';
 
 // 定数
 const MAX_POKEMON_ID = 800;   // 取得対象のポケモンの最大ID
 const MAX_ATTEMPT_COUNT = 5;  // API取得の最大試行回数
 const OPTIONS_COUNT = 4;      // クイズの選択肢の数
 
+/**
+ * ランダムなポケモンデータを取得します
+ * @returns PokemonData ポケモンのデータ
+ * @throws Error API呼び出しが失敗した場合
+ */
 export const getRandomPokemonData = async (): Promise<PokemonData> => {
     try {
       // ランダムなポケモンIDを選択
@@ -76,7 +81,7 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
 
         } catch (error) {
           attempts++;
-          console.warn('Error occurred:', error);
+          // エラーログの出力
           if (axios.isAxiosError(error)) {
             if (error.response) {
               console.warn(`Attempt ${attempts}: Received status ${error.response.status} for Pokemon ID ${randomId}.`);
@@ -90,17 +95,25 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
           }
 
           if (attempts >= MAX_ATTEMPT_COUNT) {
-            console.error('Maximum attempts reached. Throwing error.');
-            throw new Error(`Failed to fetch a valid Pokemon after ${MAX_ATTEMPT_COUNT} attempts.`);
+            // すべての試行が失敗した場合
+            throw handleApiError(
+              error, 
+              'getRandomPokemonData', 
+              `${MAX_ATTEMPT_COUNT}回の試行後もポケモンデータの取得に失敗しました。`
+            );
           }
         }
       }
 
       // ループが終了しても結果が返らなかった場合
-      throw new Error(`Failed to fetch Pokemon data after ${MAX_ATTEMPT_COUNT} attempts`);
+      throw handleApiError(
+        new Error(`Failed to fetch Pokemon data`), 
+        'getRandomPokemonData', 
+        `${MAX_ATTEMPT_COUNT}回の試行後もポケモンデータの取得に失敗しました。`
+      );
     } catch (error) {
-      console.error('Error in getRandomPokemonData:', error);
-      throw error;
+      // エラーを整形して再スロー
+      throw handleApiError(error, 'getRandomPokemonData');
     }
   };
 
@@ -108,6 +121,7 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
  * 全てのポケモンの色のリストを取得し、その中からランダムに選択して
  * オプションとして使用するためのデータを生成します
  * @returns TranslatedName[] 日本語と英語の名前を含むオプションの配列
+ * @throws Error API呼び出しが失敗した場合
  */
 export const getColors = async (): Promise<TranslatedName[]> => {
     try {
@@ -120,18 +134,22 @@ export const getColors = async (): Promise<TranslatedName[]> => {
 
       // 各色の詳細情報を取得
       const colorData = await Promise.all(randomColors.map(async (color) => {
-        const colorResponse = await axios.get<PokemonColorApiResponse>(color.url);
-
-        return {
-          jp: getJapaneseText(colorResponse.data.names).toLowerCase(),
-          en: getEnglishText(colorResponse.data.names).toLowerCase()
-        };
+        try {
+          const colorResponse = await axios.get<PokemonColorApiResponse>(color.url);
+          return {
+            jp: getJapaneseText(colorResponse.data.names).toLowerCase(),
+            en: getEnglishText(colorResponse.data.names).toLowerCase()
+          };
+        } catch (err) {
+          // 個別の色情報取得時のエラーを処理
+          throw handleApiError(err, 'getColors', `色情報の取得に失敗: ${color.name}`);
+        }
       }));
 
       return colorData;
     } catch (error) {
-      console.error('Error in getColors:', error);
-      throw error;
+      // エラーを整形して再スロー
+      throw handleApiError(error, 'getColors');
     }
 };
 
@@ -139,6 +157,7 @@ export const getColors = async (): Promise<TranslatedName[]> => {
  * 全てのポケモンのタイプのリストを取得し、その中からランダムに選択して
  * オプションとして使用するためのデータを生成します
  * @returns TranslatedName[] 日本語と英語の名前を含むオプションの配列
+ * @throws Error API呼び出しが失敗した場合
  */
 export const getTypes = async (): Promise<TranslatedName[]> => {
     try {
@@ -151,24 +170,29 @@ export const getTypes = async (): Promise<TranslatedName[]> => {
 
       // 各タイプの詳細情報を取得
       const typeData = await Promise.all(randomTypes.map(async (type) => {
-        const typeResponse = await axios.get<PokemonTypeApiResponse>(type.url);
-
-        return {
-          jp: getJapaneseText(typeResponse.data.names).toLowerCase(),
-          en: getEnglishText(typeResponse.data.names).toLowerCase()
-        };
+        try {
+          const typeResponse = await axios.get<PokemonTypeApiResponse>(type.url);
+          return {
+            jp: getJapaneseText(typeResponse.data.names).toLowerCase(),
+            en: getEnglishText(typeResponse.data.names).toLowerCase()
+          };
+        } catch (err) {
+          // 個別のタイプ情報取得時のエラーを処理
+          throw handleApiError(err, 'getTypes', `タイプ情報の取得に失敗: ${type.name}`);
+        }
       }));
 
       return typeData;
     } catch (error) {
-      console.error('Error in getTypes:', error);
-      throw error;
+      // エラーを整形して再スロー
+      throw handleApiError(error, 'getTypes');
     }
 };
 
 /**
  * ポケモンの世代情報を取得します
  * @returns PokemonApiResource[] 世代情報の配列
+ * @throws Error API呼び出しが失敗した場合
  */
 export const getGenera = async (): Promise<PokemonApiResource[]> => {
     try {
@@ -176,7 +200,7 @@ export const getGenera = async (): Promise<PokemonApiResource[]> => {
       // イミュータブルな配列を返す
       return [...response.data.results];
     } catch (error) {
-      console.error('Error in getGenera:', error);
-      throw error;
+      // エラーを整形して再スロー
+      throw handleApiError(error, 'getGenera');
     }
 };

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { PokemonApiNameObject } from '~/types';
 
 /**
@@ -25,4 +26,45 @@ export const getEnglishText = (names: PokemonApiNameObject[]): string => {
  */
 export const shuffleArray = <T>(array: T[]): T[] => {
   return [...array].sort(() => Math.random() - 0.5);
+};
+
+/**
+ * 一貫したエラーハンドリングのためのユーティリティ関数
+ * 
+ * @param error 発生したエラー
+ * @param functionName エラーが発生した関数名
+ * @param additionalInfo 追加情報（オプション）
+ * @returns 整形されたエラーオブジェクト
+ */
+export const handleApiError = (error: unknown, functionName: string, additionalInfo?: string): Error => {
+  // ログの記録
+  console.error(`Error in ${functionName}:`, error);
+  
+  // エラーメッセージの構築
+  let errorMessage = `API呼び出し中にエラーが発生しました (${functionName})`;
+  
+  if (additionalInfo) {
+    errorMessage += `: ${additionalInfo}`;
+  }
+  
+  // Axiosエラーの場合、詳細情報を追加
+  if (axios.isAxiosError(error)) {
+    if (error.response) {
+      // サーバーからのレスポンスがあるがエラーステータスの場合
+      errorMessage += ` - サーバーから ${error.response.status} エラーが返されました`;
+    } else if (error.request) {
+      // リクエストは送信されたがレスポンスがない場合
+      errorMessage += ' - サーバーからの応答がありませんでした';
+    } else {
+      // リクエスト設定中にエラーが発生した場合
+      errorMessage += ' - リクエスト設定中にエラーが発生しました';
+    }
+  }
+  
+  // 元のエラーメッセージがある場合は追加
+  if (error instanceof Error) {
+    errorMessage += `: ${error.message}`;
+  }
+  
+  return new Error(errorMessage);
 };
