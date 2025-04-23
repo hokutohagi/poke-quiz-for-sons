@@ -61,7 +61,7 @@ npm run dev
 yarn dev
 ```
 
-4. ブラウザで `http://localhost:3000` にアクセスしてアプリケーションを使用します
+4. ブラウザで `http://localhost:5173` にアクセスしてアプリケーションを使用します
 
 ## 技術スタック
 
@@ -146,10 +146,6 @@ export const quizCategories: QuizCategory[] = [
 3. 変更をコミットします (`git commit -m 'Add some amazing feature'`)
 4. ブランチにプッシュします (`git push origin feature/amazing-feature`)
 5. プルリクエストを作成します
-
-## ライセンス
-
-このプロジェクトはMITライセンスの下で公開されています。詳細については `LICENSE` ファイルを参照してください。
 
 ## 謝辞
 
