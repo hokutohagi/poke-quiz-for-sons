@@ -62,7 +62,7 @@ export interface QuizCategory {
     en: string;
     jp: string;
 }
-  
+
 export interface Achievement {
     streak: number;
     title: string;

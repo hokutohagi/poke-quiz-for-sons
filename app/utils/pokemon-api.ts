@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { 
-  PokemonData, 
-  PokemonApiNameObject, 
-  PokemonApiGenusObject, 
+import {
+  PokemonData,
+  PokemonApiNameObject,
+  PokemonApiGenusObject,
   PokemonApiFlavorTextEntry,
   PokemonApiTypeSlot,
   TranslatedName
@@ -46,7 +46,7 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
       let randomId: number;
       let attempts = 0;
       const maxAttempts = 5;
-  
+
       while (attempts < maxAttempts) {
         randomId = Math.floor(Math.random() * 800) + 1;
 
@@ -65,11 +65,11 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
 
             // タイプ情報の取得（現状は最初のタイプのみ）
             const primaryType = pokemonResponseData.types.find(type => type.slot === 1);
-            
+
             if (!primaryType) {
               throw new Error(`No primary type found for Pokemon ID ${randomId}`);
             }
-            
+
             const typeResponse = await axios.get<PokemonTypeApiResponse>(primaryType.type.url);
             const typeResponseData = typeResponse.data;
 
@@ -105,9 +105,9 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
                 descriptionJp: speciesResponseData.flavor_text_entries.find(entry => entry.language.name === 'ja-Hrkt')?.flavor_text || speciesResponseData.flavor_text_entries[0].flavor_text,
                 image: pokemonResponseData.sprites.front_default
             };
-            
+
             return pokeData;
-  
+
         } catch (error) {
           attempts++;
           console.warn('Error occurred:', error);
@@ -122,7 +122,7 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
           } else {
             console.warn(`Attempt ${attempts}: Unexpected error occurred for Pokemon ID ${randomId}.`);
           }
-          
+
           if (attempts >= maxAttempts) {
             console.error('Maximum attempts reached. Throwing error.');
             throw new Error('Failed to fetch a valid Pokemon after multiple attempts.');
@@ -149,32 +149,32 @@ export const getColors = async (): Promise<TranslatedName[]> => {
       interface ColorListResponse {
         results: PokemonApiResource[];
       }
-      
+
       const response = await axios.get<ColorListResponse>('https://pokeapi.co/api/v2/pokemon-color');
-      
+
       // ランダムに4つの色を選択
       const shuffledColors = [...response.data.results].sort(() => Math.random() - 0.5);
       const randomColors = shuffledColors.slice(0, 4);
-      
+
       // 各色の詳細情報を取得
       const colorData = await Promise.all(randomColors.map(async (color) => {
         const colorResponse = await axios.get<PokemonColorApiResponse>(color.url);
-        
+
         // 言語に基づいて名前を取得
         const getJapaneseText = (names: PokemonApiNameObject[]): string => {
           return names.find(item => item.language.name === 'ja-Hrkt')?.name || names[0].name;
         };
-        
+
         const getEnglishText = (names: PokemonApiNameObject[]): string => {
           return names.find(item => item.language.name === 'en')?.name || names[0].name;
         };
-        
+
         return {
           jp: getJapaneseText(colorResponse.data.names).toLowerCase(),
           en: getEnglishText(colorResponse.data.names).toLowerCase()
         };
       }));
-      
+
       return colorData;
     } catch (error) {
       console.error('Error in getColors:', error);
@@ -193,32 +193,32 @@ export const getTypes = async (): Promise<TranslatedName[]> => {
       interface TypeListResponse {
         results: PokemonApiResource[];
       }
-      
+
       const response = await axios.get<TypeListResponse>('https://pokeapi.co/api/v2/type');
-      
+
       // ランダムに4つのタイプを選択
       const shuffledTypes = [...response.data.results].sort(() => Math.random() - 0.5);
       const randomTypes = shuffledTypes.slice(0, 4);
-      
+
       // 各タイプの詳細情報を取得
       const typeData = await Promise.all(randomTypes.map(async (type) => {
         const typeResponse = await axios.get<PokemonTypeApiResponse>(type.url);
-        
+
         // 言語に基づいて名前を取得
         const getJapaneseText = (names: PokemonApiNameObject[]): string => {
           return names.find(item => item.language.name === 'ja-Hrkt')?.name || names[0].name;
         };
-        
+
         const getEnglishText = (names: PokemonApiNameObject[]): string => {
           return names.find(item => item.language.name === 'en')?.name || names[0].name;
         };
-        
+
         return {
           jp: getJapaneseText(typeResponse.data.names).toLowerCase(),
           en: getEnglishText(typeResponse.data.names).toLowerCase()
         };
       }));
-      
+
       return typeData;
     } catch (error) {
       console.error('Error in getTypes:', error);
@@ -235,7 +235,7 @@ export const getGenera = async (): Promise<PokemonApiResource[]> => {
       interface GenerationListResponse {
         results: PokemonApiResource[];
       }
-      
+
       const response = await axios.get<GenerationListResponse>('https://pokeapi.co/api/v2/generation');
       return response.data.results;
     } catch (error) {
