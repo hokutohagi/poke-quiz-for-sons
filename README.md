@@ -96,29 +96,6 @@ poke-quiz-for-sons/
 └── README.md            # このファイル
 ```
 
-## 開発方法
-
-### 新しいクイズカテゴリの追加
-
-`app/data/pokemon-data.ts` ファイルを編集して、新しいクイズカテゴリを追加できます。
-
-```typescript
-export const quizCategories: QuizCategory[] = [
-    { en: 'color', jp: 'いろ' },
-    { en: 'type', jp: 'タイプ' },
-    // 新しいカテゴリを追加
-    { en: 'habitat', jp: 'すみか' }
-];
-```
-
-新しいカテゴリを追加する場合は、`app/utils/quiz-helpers.ts` の `generateOptions` 関数にも対応するオプション生成ロジックを追加する必要があります。
-
-### カスタマイズ
-
-- **UIのカスタマイズ**: `app/styles/globals.css` と各UIコンポーネントを編集
-- **クイズの難易度調整**: `app/utils/pokemon-api.ts` の `getRandomPokemonData` 関数を調整して、使用するポケモンの範囲を変更
-- **達成度の変更**: `app/data/pokemon-data.ts` の `achievements` 配列を編集
-
 ## デプロイ
 
 このアプリケーションはGitHubリポジトリとVercelが連携されており、自動デプロイが設定されています。
@@ -138,14 +115,6 @@ export const quizCategories: QuizCategory[] = [
 1. [Vercel](https://vercel.com)にログインします。
 
 2. このプロジェクトのダッシュボードに移動し、「Deployments」タブから新しいデプロイを開始できます。
-
-## 貢献方法
-
-1. このリポジトリをフォークします
-2. 新しいブランチを作成します (`git checkout -b feature/amazing-feature`)
-3. 変更をコミットします (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュします (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成します
 
 ## 謝辞
 
