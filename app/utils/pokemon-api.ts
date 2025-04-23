@@ -10,6 +10,11 @@ import {
 } from '../types/index';
 import { getJapaneseText, getEnglishText, shuffleArray } from './pokemon-utils';
 
+// 定数
+const MAX_POKEMON_ID = 800;   // 取得対象のポケモンの最大ID
+const MAX_ATTEMPT_COUNT = 5;  // API取得の最大試行回数
+const OPTIONS_COUNT = 4;      // クイズの選択肢の数
+
 interface PokemonApiResponse {
   id: number;
   name: string;
@@ -44,13 +49,12 @@ interface PokemonColorApiResponse {
 
 export const getRandomPokemonData = async (): Promise<PokemonData> => {
     try {
-      // 最大800までのポケモンからランダムに選択
+      // ランダムなポケモンIDを選択
       let randomId: number;
       let attempts = 0;
-      const maxAttempts = 5;
 
-      while (attempts < maxAttempts) {
-        randomId = Math.floor(Math.random() * 800) + 1;
+      while (attempts < MAX_ATTEMPT_COUNT) {
+        randomId = Math.floor(Math.random() * MAX_POKEMON_ID) + 1;
 
         try {
             // ポケモン基本情報の取得
@@ -115,15 +119,15 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
             console.warn(`Attempt ${attempts}: Unexpected error occurred for Pokemon ID ${randomId}.`);
           }
 
-          if (attempts >= maxAttempts) {
+          if (attempts >= MAX_ATTEMPT_COUNT) {
             console.error('Maximum attempts reached. Throwing error.');
-            throw new Error('Failed to fetch a valid Pokemon after multiple attempts.');
+            throw new Error(`Failed to fetch a valid Pokemon after ${MAX_ATTEMPT_COUNT} attempts.`);
           }
         }
       }
 
       // ループが終了しても結果が返らなかった場合
-      throw new Error('Failed to fetch Pokemon data after multiple attempts');
+      throw new Error(`Failed to fetch Pokemon data after ${MAX_ATTEMPT_COUNT} attempts`);
     } catch (error) {
       console.error('Error in getRandomPokemonData:', error);
       throw error;
@@ -144,9 +148,9 @@ export const getColors = async (): Promise<TranslatedName[]> => {
 
       const response = await axios.get<ColorListResponse>('https://pokeapi.co/api/v2/pokemon-color');
 
-      // ランダムに4つの色を選択
+      // ランダムに選択肢の数だけ色を選択
       const shuffledColors = shuffleArray(response.data.results);
-      const randomColors = shuffledColors.slice(0, 4);
+      const randomColors = shuffledColors.slice(0, OPTIONS_COUNT);
 
       // 各色の詳細情報を取得
       const colorData = await Promise.all(randomColors.map(async (color) => {
@@ -179,9 +183,9 @@ export const getTypes = async (): Promise<TranslatedName[]> => {
 
       const response = await axios.get<TypeListResponse>('https://pokeapi.co/api/v2/type');
 
-      // ランダムに4つのタイプを選択
+      // ランダムに選択肢の数だけタイプを選択
       const shuffledTypes = shuffleArray(response.data.results);
-      const randomTypes = shuffledTypes.slice(0, 4);
+      const randomTypes = shuffledTypes.slice(0, OPTIONS_COUNT);
 
       // 各タイプの詳細情報を取得
       const typeData = await Promise.all(randomTypes.map(async (type) => {
