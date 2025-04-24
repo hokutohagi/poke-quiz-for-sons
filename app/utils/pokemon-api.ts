@@ -19,8 +19,12 @@ const OPTIONS_COUNT = 4;      // クイズの選択肢の数
 
 /**
  * ランダムなポケモンデータを取得します
- * @returns PokemonData ポケモンのデータ
- * @throws Error API呼び出しが失敗した場合
+ * 
+ * @async
+ * @function getRandomPokemonData
+ * @description ランダムなポケモンIDを生成し、そのポケモンの詳細情報を複数のAPIエンドポイントから取得します
+ * @returns {Promise<PokemonData>} ポケモンの詳細データを含むオブジェクト
+ * @throws {Error} API呼び出しが失敗した場合や最大試行回数を超えた場合にエラーをスローします
  */
 export const getRandomPokemonData = async (): Promise<PokemonData> => {
     try {
@@ -120,8 +124,12 @@ export const getRandomPokemonData = async (): Promise<PokemonData> => {
 /**
  * 全てのポケモンの色のリストを取得し、その中からランダムに選択して
  * オプションとして使用するためのデータを生成します
- * @returns TranslatedName[] 日本語と英語の名前を含むオプションの配列
- * @throws Error API呼び出しが失敗した場合
+ * 
+ * @async
+ * @function getColors
+ * @description PokeAPIから色情報を取得し、ランダムに選んだ色の詳細を取得して返します
+ * @returns {Promise<TranslatedName[]>} 日本語と英語の名前を含むオプションの配列
+ * @throws {Error} API呼び出しが失敗した場合
  */
 export const getColors = async (): Promise<TranslatedName[]> => {
     try {
