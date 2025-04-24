@@ -19,7 +19,7 @@ const OPTIONS_COUNT = 4;      // クイズの選択肢の数
 
 /**
  * ランダムなポケモンデータを取得します
- * 
+ *
  * @async
  * @function getRandomPokemonData
  * @description ランダムなポケモンIDを生成し、そのポケモンの詳細情報を複数のAPIエンドポイントから取得します
@@ -27,104 +27,107 @@ const OPTIONS_COUNT = 4;      // クイズの選択肢の数
  * @throws {Error} API呼び出しが失敗した場合や最大試行回数を超えた場合にエラーをスローします
  */
 export const getRandomPokemonData = async (): Promise<PokemonData> => {
-    try {
-      // ランダムなポケモンIDを選択
-      let randomId: number;
-      let attempts = 0;
+  try {
+    return await fetchPokemonWithRetry(0);
+  } catch (error) {
+    // エラーを整形して再スロー
+    throw handleApiError(error, 'getRandomPokemonData');
+  }
+};
 
-      while (attempts < MAX_ATTEMPT_COUNT) {
-        randomId = Math.floor(Math.random() * MAX_POKEMON_ID) + 1;
+/**
+ * 再帰的にポケモンデータの取得を試行するヘルパー関数
+ *
+ * @async
+ * @function fetchPokemonWithRetry
+ * @param {number} attemptCount - 現在の試行回数
+ * @returns {Promise<PokemonData>} ポケモンの詳細データを含むオブジェクト
+ * @throws {Error} 最大試行回数を超えた場合または予期せぬエラーが発生した場合
+ */
+const fetchPokemonWithRetry = async (attemptCount: number): Promise<PokemonData> => {
+  // 試行回数が上限を超えている場合はエラーをスロー
+  if (attemptCount >= MAX_ATTEMPT_COUNT) {
+    throw handleApiError(
+      new Error(`Failed to fetch Pokemon data`),
+      'fetchPokemonWithRetry',
+      `${MAX_ATTEMPT_COUNT}回の試行後もポケモンデータの取得に失敗しました。`
+    );
+  }
 
-        try {
-            // ポケモン基本情報の取得
-            const pokemonResponse = await axios.get<PokemonApiResponse>(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
-            const pokemonResponseData = pokemonResponse.data;
+  // ランダムなポケモンIDを生成（イミュータブル）
+  const randomId = Math.floor(Math.random() * MAX_POKEMON_ID) + 1;
 
-            // 種族情報の取得
-            const speciesResponse = await axios.get<PokemonSpeciesApiResponse>(pokemonResponseData.species.url);
-            const speciesResponseData = speciesResponse.data;
+  try {
+    // ポケモン基本情報の取得
+    const pokemonResponse = await axios.get<PokemonApiResponse>(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+    const pokemonResponseData = pokemonResponse.data;
 
-            // 色情報の取得
-            const colorResponse = await axios.get<PokemonColorApiResponse>(speciesResponseData.color.url);
-            const colorResponseData = colorResponse.data;
+    // 種族情報の取得
+    const speciesResponse = await axios.get<PokemonSpeciesApiResponse>(pokemonResponseData.species.url);
+    const speciesResponseData = speciesResponse.data;
 
-            // タイプ情報の取得（現状は最初のタイプのみ）
-            const primaryType = pokemonResponseData.types.find(type => type.slot === 1);
+    // 色情報の取得
+    const colorResponse = await axios.get<PokemonColorApiResponse>(speciesResponseData.color.url);
+    const colorResponseData = colorResponse.data;
 
-            if (!primaryType) {
-              throw new Error(`No primary type found for Pokemon ID ${randomId}`);
-            }
+    // タイプ情報の取得（現状は最初のタイプのみ）
+    const primaryType = pokemonResponseData.types.find(type => type.slot === 1);
 
-            const typeResponse = await axios.get<PokemonTypeApiResponse>(primaryType.type.url);
-            const typeResponseData = typeResponse.data;
-
-            // ポケモンデータの構築
-            const pokeData: PokemonData = {
-                id: pokemonResponseData.id,
-                name: {
-                    jp: getJapaneseText(speciesResponseData.names),
-                    en: pokemonResponseData.name
-                },
-                color: {
-                    jp: getJapaneseText(colorResponseData.names),
-                    en: speciesResponseData.color.name
-                },
-                type: { // TODO: 複数のタイプを持つポケモンがいるため、配列にする
-                    jp: getJapaneseText(typeResponseData.names),
-                    en: getEnglishText(typeResponseData.names).toLowerCase()
-                },
-                genera: {
-                    jp: speciesResponseData.genera.find(genus => genus.language.name === 'ja-Hrkt')?.genus || speciesResponseData.genera[0].genus,
-                    en: speciesResponseData.genera.find(genus => genus.language.name === 'en')?.genus || speciesResponseData.genera[0].genus
-                },
-                descriptionJp: speciesResponseData.flavor_text_entries.find(entry => entry.language.name === 'ja-Hrkt')?.flavor_text || speciesResponseData.flavor_text_entries[0].flavor_text,
-                image: pokemonResponseData.sprites.front_default
-            };
-
-            return pokeData;
-
-        } catch (error) {
-          attempts++;
-          // エラーログの出力
-          if (axios.isAxiosError(error)) {
-            if (error.response) {
-              console.warn(`Attempt ${attempts}: Received status ${error.response.status} for Pokemon ID ${randomId}.`);
-            } else if (error.request) {
-              console.warn(`Attempt ${attempts}: No response received for Pokemon ID ${randomId}.`);
-            } else {
-              console.warn(`Attempt ${attempts}: Error setting up the request for Pokemon ID ${randomId}.`);
-            }
-          } else {
-            console.warn(`Attempt ${attempts}: Unexpected error occurred for Pokemon ID ${randomId}.`);
-          }
-
-          if (attempts >= MAX_ATTEMPT_COUNT) {
-            // すべての試行が失敗した場合
-            throw handleApiError(
-              error, 
-              'getRandomPokemonData', 
-              `${MAX_ATTEMPT_COUNT}回の試行後もポケモンデータの取得に失敗しました。`
-            );
-          }
-        }
-      }
-
-      // ループが終了しても結果が返らなかった場合
-      throw handleApiError(
-        new Error(`Failed to fetch Pokemon data`), 
-        'getRandomPokemonData', 
-        `${MAX_ATTEMPT_COUNT}回の試行後もポケモンデータの取得に失敗しました。`
-      );
-    } catch (error) {
-      // エラーを整形して再スロー
-      throw handleApiError(error, 'getRandomPokemonData');
+    if (!primaryType) {
+      throw new Error(`No primary type found for Pokemon ID ${randomId}`);
     }
-  };
+
+    const typeResponse = await axios.get<PokemonTypeApiResponse>(primaryType.type.url);
+    const typeResponseData = typeResponse.data;
+
+    // ポケモンデータを不変なオブジェクトとして構築
+    return {
+      id: pokemonResponseData.id,
+      name: {
+        jp: getJapaneseText(speciesResponseData.names),
+        en: pokemonResponseData.name
+      },
+      color: {
+        jp: getJapaneseText(colorResponseData.names),
+        en: speciesResponseData.color.name
+      },
+      type: { // TODO: 複数のタイプを持つポケモンがいるため、配列にする
+        jp: getJapaneseText(typeResponseData.names),
+        en: getEnglishText(typeResponseData.names).toLowerCase()
+      },
+      genera: {
+        jp: speciesResponseData.genera.find(genus => genus.language.name === 'ja-Hrkt')?.genus || speciesResponseData.genera[0].genus,
+        en: speciesResponseData.genera.find(genus => genus.language.name === 'en')?.genus || speciesResponseData.genera[0].genus
+      },
+      descriptionJp: speciesResponseData.flavor_text_entries.find(entry => entry.language.name === 'ja-Hrkt')?.flavor_text || speciesResponseData.flavor_text_entries[0].flavor_text,
+      image: pokemonResponseData.sprites.front_default
+    };
+  } catch (error) {
+    // 次の試行回数（イミュータブルな値）
+    const nextAttemptCount = attemptCount + 1;
+
+    // エラーログの出力
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        console.warn(`Attempt ${nextAttemptCount}: Received status ${error.response.status} for Pokemon ID ${randomId}.`);
+      } else if (error.request) {
+        console.warn(`Attempt ${nextAttemptCount}: No response received for Pokemon ID ${randomId}.`);
+      } else {
+        console.warn(`Attempt ${nextAttemptCount}: Error setting up the request for Pokemon ID ${randomId}.`);
+      }
+    } else {
+      console.warn(`Attempt ${nextAttemptCount}: Unexpected error occurred for Pokemon ID ${randomId}.`);
+    }
+
+    // 再帰的に次の試行を実行
+    return fetchPokemonWithRetry(nextAttemptCount);
+  }
+};
 
 /**
  * 全てのポケモンの色のリストを取得し、その中からランダムに選択して
  * オプションとして使用するためのデータを生成します
- * 
+ *
  * @async
  * @function getColors
  * @description PokeAPIから色情報を取得し、ランダムに選んだ色の詳細を取得して返します
