@@ -20,17 +20,24 @@ export const getEnglishText = (names: PokemonApiNameObject[]): string => {
 };
 
 /**
- * 配列をランダムにシャッフルする
+ * 配列をシャッフルするユーティリティ関数
+ * Fisher-Yates（Knuth）シャッフルアルゴリズムを使用
+ *
  * @param array シャッフルする配列
  * @returns シャッフルされた配列のコピー
  */
 export const shuffleArray = <T>(array: T[]): T[] => {
-  return [...array].sort(() => Math.random() - 0.5);
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 };
 
 /**
  * 一貫したエラーハンドリングのためのユーティリティ関数
- * 
+ *
  * @param error 発生したエラー
  * @param functionName エラーが発生した関数名
  * @param additionalInfo 追加情報（オプション）
@@ -39,14 +46,14 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 export const handleApiError = (error: unknown, functionName: string, additionalInfo?: string): Error => {
   // ログの記録
   console.error(`Error in ${functionName}:`, error);
-  
+
   // エラーメッセージの構築
   let errorMessage = `API呼び出し中にエラーが発生しました (${functionName})`;
-  
+
   if (additionalInfo) {
     errorMessage += `: ${additionalInfo}`;
   }
-  
+
   // Axiosエラーの場合、詳細情報を追加
   if (axios.isAxiosError(error)) {
     if (error.response) {
@@ -60,11 +67,11 @@ export const handleApiError = (error: unknown, functionName: string, additionalI
       errorMessage += ' - リクエスト設定中にエラーが発生しました';
     }
   }
-  
+
   // 元のエラーメッセージがある場合は追加
   if (error instanceof Error) {
     errorMessage += `: ${error.message}`;
   }
-  
+
   return new Error(errorMessage);
 };
