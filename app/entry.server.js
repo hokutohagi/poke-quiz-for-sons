@@ -1,7 +1,7 @@
 import { RemixServer } from "@remix-run/react";
 import { handleRequest } from "@vercel/remix";
 
-export default function handler(
+export default function (
   request,
   responseStatusCode,
   responseHeaders,
