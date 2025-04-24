@@ -8,7 +8,8 @@ import {
   ColorListResponse,
   TypeListResponse,
   GenerationListResponse,
-  TranslatedName
+  TranslatedName,
+  PokemonApiResource
 } from '../types/index';
 import { getJapaneseText, getEnglishText, shuffleArray, handleApiError } from './pokemon-utils';
 
